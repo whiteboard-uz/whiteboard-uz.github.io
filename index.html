@@ -118,7 +118,7 @@ const COLORS=['#111827','#ffffff','#ef4444','#f97316','#eab308','#22c55e','#3b82
 const NOTES=['#fef08a','#bbf7d0','#bfdbfe','#fbcfe8','#fed7aa'];
 const SIZES=[2,4,8,14];
 let W,H,DPR,dirty=true,liveDirty=true;
-let tool='pen',shapeK='rect',fillOn=false,color='#111827',sizeI=1,eraserI=1,noteI=0,penOnly=false,penSeen=false,spaceDown=false;
+let tool='pen',shapeK='rect',fillOn=false,color='#111827',sizeI=1,eraserI=1,eraseWhole=false,noteI=0,penOnly=false,penSeen=false,spaceDown=false;
 let lastPtr='mouse',kbLang='lat',kbShift=false,kbSym=false,kbAlways=false,kbRep;
 try{kbLang=localStorage.getItem('doskaKbLang')||'lat';kbAlways=!!localStorage.getItem('doskaKbAlways')}catch(_){}
 let cur=null,act=null,gest=null,sel=[],laser=[],hover=null,edObj=null,edSnap=null,lastTap={t:0,x:0,y:0};
@@ -282,6 +282,7 @@ function eraseLine(x1,y1,x2,y2){const objs=P().objs,r=eraserR()/P().v.s,steps=Ma
    const p=o.pts,runs=[];let run=[],cut=false;
    for(let j=0;j<p.length;j+=2){if(distSeg(p[j],p[j+1],x1,y1,x2,y2)<r+o.w/2){cut=true;if(run.length>=4)runs.push(run);run=[]}else run.push(p[j],p[j+1])}
    if(!cut)continue;
+   if(eraseWhole){if(!act.snap){snapshot();act.snap=true}objs.splice(i,1);any=true;continue}
    if(run.length>=4)runs.push(run);
    if(!act.snap){snapshot();act.snap=true}
    objs.splice(i,1,...runs.map(q=>({...o,pts:q})));any=true;continue}
@@ -389,11 +390,13 @@ COLORS.forEach(c=>colBtns[c]=btn(tb,`<span class="sw" style="background:${c}"></
 const cpb=btn(tb,'<span class="sw rainbow"></span>','Boshqa rang',()=>$('#cpick').click(),'b sm col');
 $('#cpick').oninput=e=>setColor(e.target.value);sep();
 SIZES.forEach((s,i)=>sizeBtns.push(btn(tb,`<span class="dot" style="width:${[6,10,16,24][i]}px;height:${[6,10,16,24][i]}px"></span>`,'Qalinlik',()=>setSize(i),'b sm')));
+const emB=btn(tb,'<span style="font:600 15px Segoe UI,system-ui,sans-serif">Qisman</span>','O\'chirish rejimi',()=>{eraseWhole=!eraseWhole;emB.firstChild.textContent=eraseWhole?'Butun':'Qisman';emB.classList.toggle('on',eraseWhole);liveDirty=true},'b sm');
+emB.style.display='none';
 const sp=$('#shapePop');
 ['rect','ellipse','tri','line','arrow'].forEach(k=>btn(sp,svg(k),k,()=>{shapeK=k;toolBtns.shape.innerHTML=svg(k);closePops();setTool('shape');buildShapePop()},'b'));
 const fillB=btn(sp,svg('fill'),'Bo\'yalgan',()=>{fillOn=!fillOn;buildShapePop()},'b');
 function buildShapePop(){[...sp.children].forEach((b,i)=>b.classList.toggle('on',i<5?['rect','ellipse','tri','line','arrow'][i]===shapeK:fillOn))}
-function setTool(t){commitEdit();tool=t;if(t!=='select'){sel=[]}Object.entries(toolBtns).forEach(([k,b])=>b.classList.toggle('on',k===t));base.style.cursor=t==='hand'?'grab':t==='select'?'default':t==='text'?'text':'crosshair';sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===(t==='eraser'?eraserI:sizeI)));liveDirty=true}
+function setTool(t){commitEdit();tool=t;if(t!=='select'){sel=[]}Object.entries(toolBtns).forEach(([k,b])=>b.classList.toggle('on',k===t));base.style.cursor=t==='hand'?'grab':t==='select'?'default':t==='text'?'text':'crosshair';sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===(t==='eraser'?eraserI:sizeI)));if(typeof emB!=='undefined')emB.style.display=t==='eraser'?'':'none';liveDirty=true}
 function setColor(c){color=c;Object.entries(colBtns).forEach(([k,b])=>b.classList.toggle('on',k===c));cpb.classList.toggle('on',!colBtns[c]);
  if(sel.length){snapshot();sel.forEach(o=>{if(o.t==='note')return;o.c=c});changed()}else if(tool==='eraser'||tool==='select'||tool==='hand'||tool==='laser')setTool('pen')}
 function setSize(i){if(tool==='eraser'){eraserI=i;sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===i));liveDirty=true;return}sizeI=i;sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===i));if(sel.length){snapshot();sel.forEach(o=>{if(o.t==='stroke'||o.t==='shape')o.w=o.a<1?SIZES[i]*3+10:SIZES[i];if(o.t==='text')o.z=SIZES[i]*5+18});changed()}liveDirty=true}
