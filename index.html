@@ -276,7 +276,16 @@ function begin(e){
 }
 function topAt(x,y,types){const objs=P().objs,r=10/P().v.s;for(let i=objs.length-1;i>=0;i--){const o=objs[i];if(types&&!types.includes(o.t))continue;if(hit(o,x,y,r))return o}return null}
 function eraseLine(x1,y1,x2,y2){const objs=P().objs,r=eraserR()/P().v.s,steps=Math.max(1,Math.ceil(Math.hypot(x2-x1,y2-y1)/(r/2)));let any=false;
- for(let i=objs.length-1;i>=0;i--){const o=objs[i];for(let s=0;s<=steps;s++){const t=s/steps;if(hit(o,x1+(x2-x1)*t,y1+(y2-y1)*t,r)){if(!act.snap){snapshot();act.snap=true}objs.splice(i,1);any=true;break}}}
+ for(let i=objs.length-1;i>=0;i--){const o=objs[i];
+  if(o.t==='stroke'){
+   /* chiziqni faqat o'chirgich tegib turgan joyidan kesadi, qolgan qismi saqlanadi */
+   const p=o.pts,runs=[];let run=[],cut=false;
+   for(let j=0;j<p.length;j+=2){if(distSeg(p[j],p[j+1],x1,y1,x2,y2)<r+o.w/2){cut=true;if(run.length>=4)runs.push(run);run=[]}else run.push(p[j],p[j+1])}
+   if(!cut)continue;
+   if(run.length>=4)runs.push(run);
+   if(!act.snap){snapshot();act.snap=true}
+   objs.splice(i,1,...runs.map(q=>({...o,pts:q})));any=true;continue}
+  for(let s=0;s<=steps;s++){const t=s/steps;if(hit(o,x1+(x2-x1)*t,y1+(y2-y1)*t,r)){if(!act.snap){snapshot();act.snap=true}objs.splice(i,1);any=true;break}}}
  if(any)dirty=true}
 base.addEventListener('pointermove',e=>{
  const pp=ptrs.get(e.pointerId);
