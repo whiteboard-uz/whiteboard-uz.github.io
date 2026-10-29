@@ -18,6 +18,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;touch-action:none;display
 .bar{position:fixed;display:flex;align-items:center;gap:3px;background:var(--ui);border-radius:20px;box-shadow:var(--sh);padding:6px;z-index:10;color:var(--tx)}
 #tools{bottom:18px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none}
 #tools::-webkit-scrollbar{display:none}
+#eraseBar{bottom:96px;left:50%;transform:translateX(-50%);display:none}#eraseBar.show{display:flex}
 #topR{top:16px;right:16px}#topL{top:16px;left:16px}
 .b{flex:none;width:54px;height:54px;border:0;background:transparent;border-radius:14px;display:grid;place-items:center;color:inherit;cursor:pointer;font:600 15px inherit;padding:0;transition:background .12s,transform .08s}
 .b:active{transform:scale(.92)}
@@ -390,13 +391,14 @@ COLORS.forEach(c=>colBtns[c]=btn(tb,`<span class="sw" style="background:${c}"></
 const cpb=btn(tb,'<span class="sw rainbow"></span>','Boshqa rang',()=>$('#cpick').click(),'b sm col');
 $('#cpick').oninput=e=>setColor(e.target.value);sep();
 SIZES.forEach((s,i)=>sizeBtns.push(btn(tb,`<span class="dot" style="width:${[6,10,16,24][i]}px;height:${[6,10,16,24][i]}px"></span>`,'Qalinlik',()=>setSize(i),'b sm')));
-const emB=btn(tb,'<span style="font:600 15px Segoe UI,system-ui,sans-serif">Qisman</span>','O\'chirish rejimi',()=>{eraseWhole=!eraseWhole;emB.firstChild.textContent=eraseWhole?'Butun':'Qisman';emB.classList.toggle('on',eraseWhole);liveDirty=true},'b sm');
-emB.style.display='none';
+const emB=document.createElement('div');emB.id='eraseBar';emB.className='bar';document.body.appendChild(emB);
+const emBtns=[['Qisman',false],['Butun chiziq',true]].map(([n,w])=>{const b=btn(emB,n,'O\'chirish rejimi',()=>{eraseWhole=w;emBtns.forEach(([x,v])=>x.classList.toggle('on',v===w));liveDirty=true},'b');b.style.cssText='width:auto;padding:0 22px;font:600 17px "Segoe UI",system-ui,sans-serif';return[b,w]});
+emBtns.forEach(([x,v])=>x.classList.toggle('on',v===eraseWhole));
 const sp=$('#shapePop');
 ['rect','ellipse','tri','line','arrow'].forEach(k=>btn(sp,svg(k),k,()=>{shapeK=k;toolBtns.shape.innerHTML=svg(k);closePops();setTool('shape');buildShapePop()},'b'));
 const fillB=btn(sp,svg('fill'),'Bo\'yalgan',()=>{fillOn=!fillOn;buildShapePop()},'b');
 function buildShapePop(){[...sp.children].forEach((b,i)=>b.classList.toggle('on',i<5?['rect','ellipse','tri','line','arrow'][i]===shapeK:fillOn))}
-function setTool(t){commitEdit();tool=t;if(t!=='select'){sel=[]}Object.entries(toolBtns).forEach(([k,b])=>b.classList.toggle('on',k===t));base.style.cursor=t==='hand'?'grab':t==='select'?'default':t==='text'?'text':'crosshair';sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===(t==='eraser'?eraserI:sizeI)));if(typeof emB!=='undefined')emB.style.display=t==='eraser'?'':'none';liveDirty=true}
+function setTool(t){commitEdit();tool=t;if(t!=='select'){sel=[]}Object.entries(toolBtns).forEach(([k,b])=>b.classList.toggle('on',k===t));base.style.cursor=t==='hand'?'grab':t==='select'?'default':t==='text'?'text':'crosshair';sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===(t==='eraser'?eraserI:sizeI)));emB.classList.toggle('show',t==='eraser');liveDirty=true}
 function setColor(c){color=c;Object.entries(colBtns).forEach(([k,b])=>b.classList.toggle('on',k===c));cpb.classList.toggle('on',!colBtns[c]);
  if(sel.length){snapshot();sel.forEach(o=>{if(o.t==='note')return;o.c=c});changed()}else if(tool==='eraser'||tool==='select'||tool==='hand'||tool==='laser')setTool('pen')}
 function setSize(i){if(tool==='eraser'){eraserI=i;sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===i));liveDirty=true;return}sizeI=i;sizeBtns.forEach((b,j)=>b.classList.toggle('on',j===i));if(sel.length){snapshot();sel.forEach(o=>{if(o.t==='stroke'||o.t==='shape')o.w=o.a<1?SIZES[i]*3+10:SIZES[i];if(o.t==='text')o.z=SIZES[i]*5+18});changed()}liveDirty=true}
