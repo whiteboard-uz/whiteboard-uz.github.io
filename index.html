@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Doska Pro</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -58,14 +58,45 @@ body.kbon #kb{display:flex}body.kbon #tools,body.kbon #selbar{display:none!impor
 .k:active,.k.dn{transform:translateY(2px);box-shadow:none;filter:brightness(.9)}
 .k.fn{font-size:19px;font-weight:600;flex:1.5;filter:brightness(.94)}.k.sp{flex:5}.k.ac{background:var(--ac);color:#fff;flex:1.7}.k.on{background:var(--ac);color:#fff}
 @media (max-width:700px){.k{height:46px;font-size:18px}.k.fn{font-size:14px}.kr{gap:5px}#kb{padding:8px}}
-#kb{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(1200px,100vw);background:var(--ui);box-shadow:var(--sh);border-radius:22px 22px 0 0;padding:12px 12px 16px;z-index:40;display:none;flex-direction:column;gap:8px}
-body.kbon #kb{display:flex}body.kbon #tools,body.kbon #selbar{display:none!important}
-.kr{display:flex;gap:8px}
-.k{flex:1;min-width:0;height:64px;border:0;border-radius:13px;background:var(--ui2);color:var(--tx);font:500 25px "Segoe UI",system-ui,sans-serif;cursor:pointer;padding:0;box-shadow:0 2px 0 rgba(0,0,0,.12)}
-.k:active,.k.dn{transform:translateY(2px);box-shadow:none;filter:brightness(.9)}
-.k.fn{font-size:19px;font-weight:600;flex:1.5;filter:brightness(.94)}.k.sp{flex:5}.k.ac{background:var(--ac);color:#fff;flex:1.7}.k.on{background:var(--ac);color:#fff}
-@media (max-width:700px){.k{height:46px;font-size:18px}.k.fn{font-size:14px}.kr{gap:5px}#kb{padding:8px}}
 @media (max-width:700px){.b{width:46px;height:46px}.b.sm{width:40px}#topL,#topR{top:8px}#topL{left:8px}#topR{right:8px}}
+
+/* ===== Ekranga moslashish: telefon, planshet, kompyuter, katta interaktiv doska ===== */
+:root{--k:1;--b:calc(54px*var(--k));--bs:calc(46px*var(--k));--gap:calc(16px*var(--k));--ico:calc(27px*var(--k))}
+@media (min-width:1500px) and (pointer:coarse),(min-width:2200px){:root{--k:1.3}}
+@media (min-width:2800px){:root{--k:1.6}}
+@media (max-width:700px),(max-height:520px){:root{--k:.82}}
+@media (max-width:380px){:root{--k:.74}}
+html,body{height:100dvh}
+canvas{height:100dvh}
+.b{width:var(--b);height:var(--b);border-radius:calc(14px*var(--k))}
+.b.sm{width:var(--bs)}
+.b svg{width:var(--ico);height:var(--ico)}
+.bar{border-radius:calc(20px*var(--k));padding:calc(6px*var(--k));gap:calc(3px*var(--k))}
+.sw{width:calc(32px*var(--k));height:calc(32px*var(--k))}
+.dot{transform:scale(var(--k))}
+.sep{height:calc(36px*var(--k))}
+#tools{bottom:calc(var(--gap) + env(safe-area-inset-bottom));max-width:calc(100vw - 2*var(--gap));touch-action:pan-x;overscroll-behavior:contain}
+#topL,#topR{top:calc(var(--gap) + env(safe-area-inset-top))}
+#topL{left:calc(var(--gap) + env(safe-area-inset-left))}
+#topR{right:calc(var(--gap) + env(safe-area-inset-right))}
+#zoom{width:calc(70px*var(--k));font-size:calc(15px*var(--k))}
+#pgl{min-width:calc(58px*var(--k));font-size:calc(16px*var(--k))}
+#shapePop{grid-template-columns:repeat(6,var(--b))}
+#eraseBar{bottom:calc(var(--gap) + var(--b)*1.25 + 14px + env(safe-area-inset-bottom))}
+#eraseBar .b{font-size:calc(17px*var(--k))!important}
+.pop{max-height:calc(100dvh - 16px);overflow:auto;touch-action:pan-y;overscroll-behavior:contain}
+#menu{width:min(calc(330px*var(--k)),calc(100vw - 16px))}
+#menu .mi{font-size:calc(16px*var(--k))}
+#menu .mi svg{width:calc(22px*var(--k));height:calc(22px*var(--k))}
+#menu h4{font-size:calc(13px*var(--k))}
+.bgt{height:calc(66px*var(--k));font-size:calc(12px*var(--k))}
+#toast{font-size:calc(16px*var(--k));top:calc(22px*var(--k) + env(safe-area-inset-top))}
+.k{height:calc(64px*var(--k));font-size:calc(25px*var(--k))}
+.k.fn{font-size:calc(19px*var(--k))}
+.kr{gap:calc(8px*var(--k))}
+#kb{padding:calc(12px*var(--k)) calc(12px*var(--k)) calc(16px*var(--k) + env(safe-area-inset-bottom));gap:calc(8px*var(--k));width:min(calc(1200px*var(--k)),100vw)}
+@media (max-width:600px){#zoom,#fs,#pgAdd{display:none}}
+@media (max-height:520px){.k{height:38px;font-size:17px}.k.fn{font-size:14px}.kr{gap:4px}#kb{padding:6px;gap:4px}#menu .mi{padding:6px 10px}}
 </style>
 </head>
 <body>
